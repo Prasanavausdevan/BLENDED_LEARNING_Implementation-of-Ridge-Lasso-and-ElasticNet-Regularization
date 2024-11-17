@@ -1,4 +1,3 @@
-
 # Implementation of Ridge, Lasso, and ElasticNet Regularization for Predicting Car Price
 
 ## AIM:
@@ -9,32 +8,31 @@ To implement Ridge, Lasso, and ElasticNet regularization models using polynomial
 2. Anaconda – Python 3.7 Installation / Jupyter notebook
 
 ## Algorithm
-1. **Import Libraries**:  
-   Import the required libraries.
 
-2. **Load Dataset**:  
-   Load the dataset into the environment.
+#### 1. Import Libraries
 
-3. **Data Preprocessing**:  
-   Handle missing values and encode categorical variables.
+* Import pandas for data handling, scikit-learn for preprocessing, modeling, and evaluation.
+#### 2. Load Dataset
 
-4. **Define Features and Target**:  
-   Split the dataset into features (X) and the target variable (y).
+* Load the dataset from encoded_car_data.csv.
+#### 3. Select Features and Target
 
-5. **Create Polynomial Features**:  
-   Generate polynomial features from the data.
+* Separate features (X) and target (y) for the model.
+#### 4. Split Dataset
 
-6. **Set Up Pipelines**:  
-   Create pipelines for Ridge, Lasso, and ElasticNet models.
+* Divide data into training and testing sets (80-20 ratio).
+#### 5. Define Models and Pipelines
 
-7. **Train Models**:  
-   Fit each model to the training data.
+* Create pipelines for Ridge, Lasso, and ElasticNet regression models with polynomial feature transformation (degree = 2).
+#### 6. Train Models
 
-8. **Evaluate Model Performance**:  
-   Assess performance using the R² score and Mean Squared Error (MSE).
+* Fit each regression model pipeline on the training data.
+#### 7. Make Predictions
 
-9. **Compare Results**:  
-   Compare the performance of the models.
+* Predict car prices for the test set using the trained models.
+#### 8. Evaluate Models
+
+* Calculate Mean Squared Error (MSE), R-squared value
 
 ## Program:
 ```
@@ -42,109 +40,54 @@ To implement Ridge, Lasso, and ElasticNet regularization models using polynomial
 Program to implement Ridge, Lasso, and ElasticNet regularization using pipelines.
 Developed by: Prasana v
 RegisterNumber: 212223040150
-
-# Importing necessary libraries
+*/
 import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
 from sklearn.model_selection import train_test_split
-from sklearn.linear_model import Ridge, Lasso, ElasticNet
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.pipeline import Pipeline
+from sklearn.linear_model import Ridge, Lasso, ElasticNet
 from sklearn.metrics import mean_squared_error, r2_score
 
 # Load the dataset
-data = pd.read_csv("https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-ML240EN-SkillsNetwork/labs/data/CarPrice_Assignment.csv")
+file_path = 'encoded_car_data.csv'
+df = pd.read_csv(file_path)
 
-# Data preprocessing
-data = data.drop(['CarName', 'car_ID'], axis=1)
-data = pd.get_dummies(data, drop_first=True)
+# Select relevant features and target variable
+X = df.drop(columns=['price'])  # All columns except 'price'
+y = df['price']  # Target variable
 
-# Splitting the data into features and target variable
-X = data.drop('price', axis=1)
-y = data['price']
-
-# Splitting the dataset into training and testing sets
+# Split the dataset into training and testing sets
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
 # Define the models and pipelines
 models = {
     "Ridge": Ridge(alpha=1.0),
-    "Lasso": Lasso(alpha=1.0),
-    "ElasticNet": ElasticNet(alpha=1.0, l1_ratio=0.5)
+    "Lasso": Lasso(alpha=0.01),
+    "ElasticNet": ElasticNet(alpha=0.01, l1_ratio=0.5)  # l1_ratio controls L1 vs L2 mix
 }
 
-# Dictionary to store results
-results = {}
-
-# Train and evaluate each model
+# Iterate over models and evaluate
 for name, model in models.items():
-    # Create a pipeline with polynomial features and the model
     pipeline = Pipeline([
-        ('poly', PolynomialFeatures(degree=2)),
-        ('regressor', model)
+        ("polynomial_features", PolynomialFeatures(degree=2)),
+        ("regressor", model)
     ])
     
-    # Fit the model
+    # Train the model
     pipeline.fit(X_train, y_train)
     
     # Make predictions
-    predictions = pipeline.predict(X_test)
+    y_pred = pipeline.predict(X_test)
     
-    # Calculate performance metrics
-    mse = mean_squared_error(y_test, predictions)
-    r2 = r2_score(y_test, predictions)
-    
-    # Store results
-    results[name] = {'MSE': mse, 'R² Score': r2}
-
-# Print results
-for model_name, metrics in results.items():
-    print(f"{model_name} - Mean Squared Error: {metrics['MSE']:.2f}, R² Score: {metrics['R² Score']:.2f}")
-
-# Visualization of the results
-# Convert results to DataFrame for easier plotting
-results_df = pd.DataFrame(results).T
-results_df.reset_index(inplace=True)
-results_df.rename(columns={'index': 'Model'}, inplace=True)
-
-# Set the figure size
-plt.figure(figsize=(12, 5))
-
-# Bar plot for MSE
-plt.subplot(1, 2, 1)
-sns.barplot(x='Model', y='MSE', data=results_df, palette='viridis')
-plt.title('Mean Squared Error (MSE)')
-plt.ylabel('MSE')
-plt.xticks(rotation=45)
-
-# Bar plot for R² Score
-plt.subplot(1, 2, 2)
-sns.barplot(x='Model', y='R² Score', data=results_df, palette='viridis')
-plt.title('R² Score')
-plt.ylabel('R² Score')
-plt.xticks(rotation=45)
-
-# Show the plots
-plt.tight_layout()
-plt.show()
-
-*/
+    # Evaluate the model
+    print(f"\n{name} Regression Results:")
+    print("Mean Squared Error (MSE):", mean_squared_error(y_test, y_pred))
+    print("R-squared:", r2_score(y_test, y_pred))
 ```
 
 ## Output:
 
-model = cd_fast.enet_coordinate_descent(
-
-Ridge - Mean Squared Error: 39011712.54, R² Score: 0.51
-
-Lasso - Mean Squared Error: 12616438.15, R² Score: 0.84
-
-ElasticNet - Mean Squared Error: 8666607.74, R² Score: 0.89)
-
-<img width="1197" alt="Screenshot 2024-10-06 at 8 58 51 PM" src="https://github.com/user-attachments/assets/bfeebd0c-c84d-4dce-9c38-182990f46973">
-
+![Ex-5-Output](https://github.com/user-attachments/assets/925823c9-6d65-4579-851a-4a0ebf1e11e6)
 
 ## Result:
 Thus, Ridge, Lasso, and ElasticNet regularization models were implemented successfully to predict the car price and the model's performance was evaluated using R² score and Mean Squared Error.
